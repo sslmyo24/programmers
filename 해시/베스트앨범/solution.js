@@ -12,8 +12,7 @@ function solution(genres, plays) {
 }
 
 function objSort (obj) {
-    let sortable = [];
-    for (const key in obj) sortable.push([key, obj[key]]);
+    let sortable = Object.entries(obj);
     sortable.sort((a, b) => b[1] > a[1] ? 1 : b[1] == a[1] ? ~~a[0] > ~~b[0] ? 1 : -1 : -1);
     return sortable;
 }
