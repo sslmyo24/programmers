@@ -1,34 +1,55 @@
-// 미완성
-function solution(name) {
-    const startCode = "A".charCodeAt(0), endCode = "Z".charCodeAt(0);
-    const middleCode = (endCode - startCode + 1)/2 + startCode, strLen = name.length;
-    let idx = 0, str = "", cnt = -1;
-    for (const key in name) str += "A";
-    while (str !== name) {
-        cnt++;
-        const targetStr = name[idx];
-        if (targetStr !== "A" && targetStr !== str[idx]) {
-            const code = targetStr.charCodeAt(0);
-            if (code < middleCode) cnt += code - startCode;
-            else cnt += endCode - code + 1;
-            str = str.substr(0, idx) + targetStr + str.substr(idx + 1);
+function solution (name) {
+    const ACode = 'A'.charCodeAt(0)
+    const ZCode = 'Z'.charCodeAt(0)
+    const codeLen = ZCode - ACode + 1
+    const middle = codeLen / 2
+    const len = name.length
+    const origin = ( str => {
+        const len = str.length
+        const chars = []
+        for (let i = 0; i < len; i ++) {
+            chars.push(str.charCodeAt(i) - ACode)
         }
-        if (name[idx + 1] === "A") {
-            if (idx === 0) idx = strLen - 1;
-            else {
-                let len = 1;
-                for (let i = idx + 2; i < strLen; i++) {
-                    if (name[i] !== "A") break;
-                    len++;
+        return chars
+    })(name);
+    const start = origin.map(() => 0)
+
+    let min = 100000000
+
+    const search = (now, type, selected, count, checked) => {
+        if (min < count) return;
+        switch (type) {
+            case 1 :
+                if (checked.indexOf(selected) !== -1) return
+                const num = origin[selected] < codeLen - origin[selected]
+                            ? origin[selected]
+                            : codeLen - origin[selected]
+                count += num
+                checked[selected] = true
+                now[selected] = origin[selected]
+                let chk = true
+                checked.forEach(v => {if (v === false) chk = false})
+                if (chk === true) {
+                    if (min > count) min = count
+                    return
                 }
-                if (len > (idx + 1)) {
-                    cnt += idx;
-                    idx = strLen - 1;
-                }
-                else idx++;
-            }
+                search([...now], 2, selected, count, [...checked])
+                search([...now], 3, selected, count, [...checked])
+            break;
+            case 2 :
+                selected -= 1
+                if (selected < 0) selected = len - 1
+            break;
+            case 3 :
+                selected = (selected + 1) % len
+            break;
         }
-        else idx++;
+        if (type > 1) {
+            search([...now], 1, selected, count + 1, [...checked])            
+        }
     }
-    return cnt;
+
+    search([...start], 1, 0, 0, origin.map(v => v === 0 ? true : false))
+
+    return min
 }
